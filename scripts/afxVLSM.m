@@ -1,4 +1,4 @@
-function destFolder = afxVLSM(designFile, minOverlap, regressLesion, nPerms, inference, FWE, threshVox, threshClust)
+function [destFolder,tCrit, kCrit] = afxVLSM(designFile, minOverlap, regressLesion, nPerms, inference, FWE, threshVox, threshClust)
     [pth,designName,~] = fileparts(designFile);
     tmpFile = fullfile(pth,[designName '-tmp.mat']);
     if ~exist(tmpFile,'file')
