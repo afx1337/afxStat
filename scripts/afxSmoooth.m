@@ -7,7 +7,7 @@ function y = afxSmoooth(y,FWHM,dim,mat)
     fprintf('   Smoothing ...')
     if length(FWHM) == 1, FWHM = [FWHM FWHM FWHM]; end
     % adapt fwhm to voxel size
-    FWHM = FWHM./abs([mat(1,1) mat(2,2) mat(3,3)]);
+    FWHM = FWHM./sqrt(sum(mat(1:3,1:3).^2));
     % generate dummy matrix for smoothed data
     sdat = nan(dim);
     % iterate over all timepoints
