@@ -40,7 +40,7 @@ function [destFolder,tCrit, kCrit] = afxVLSM(designFile, minOverlap, regressLesi
             error(['Unkonwn option for lesion volume treatmend: ' regressLesion ]);
     end
         
-    if ~any(var(X) == 0 & mean(X) ~= 0) % constant term?
+    if ~any(var(X) < eps & mean(X) ~= 0) % constant term?
         X = [X ones(size(Y.dat,1),1) ];
     end
     contrast = [1 zeros(1,size(X,2)-1)];

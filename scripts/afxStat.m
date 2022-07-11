@@ -4,7 +4,7 @@ function [destFolder,tCrit, kCrit] = afxStat(designFile, contrasts, maskFile, nP
     Y.mask   = afxVolumeResample(maskFile,XYZ,0)' > .5;
     Y.dat = Y.dat(:,Y.mask);
     % design
-    if ~any(var(X) == 0 & mean(X) ~= 0) % constant term?
+    if ~any(var(X) < eps & mean(X) ~= 0) % constant term?
         X = [X ones(size(Y.dat,1),1) ];
     end
     
