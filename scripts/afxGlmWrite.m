@@ -1,6 +1,6 @@
 function afxGlmWrite(destFolder, c, dim, mat, mask, t, tCrit, kCrit, info)
     info.df = size(info.design,1)-rank(info.design);
-	info.matlabversion = version();
+    info.matlabversion = version();
 	
     if exist(destFolder,'dir')
         warning(['Output folder ' destFolder ' already exists. Files will be overwritten.']);

@@ -14,7 +14,7 @@ function [destFolder,tCrit, kCrit] = afxStatExternal(imgFiles, FWHM, X, contrast
     end
     
     % smooth
-    if ~isempty(FWHM)
+    if ~isempty(FWHM) && FWHM ~= 0
         Y.dat = afxSmoooth(Y.dat,FWHM,Y.dim,Y.mat);
     end
     rowLabels = imgFiles;
@@ -24,7 +24,7 @@ function [destFolder,tCrit, kCrit] = afxStatExternal(imgFiles, FWHM, X, contrast
     Y.dat = Y.dat(:,Y.mask);
     
     % design
-    if ~any(var(X) < eps & mean(X) ~= 0) % constant term?
+    if ~any(var(X) <= eps & mean(X) ~= 0) % constant term?
         X = [X ones(size(Y.dat,1),1) ];
     end
     if FWE, tmp2 = 'FWE'; else, tmp2 = 'uncorr'; end
