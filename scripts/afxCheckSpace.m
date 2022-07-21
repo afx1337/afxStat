@@ -23,11 +23,13 @@ function sameSpace = afxCheckSpace(images)
         if strcmp(spaceOrig,spaceCur)
             if interactive, fprintf('   [ok] %s: %s\n',spaceCur,images{i}(end-45:end)); end
         else
+            sameSpace = false;
             if interactive
                 fprintf(' [fail] %s: %s\n',spaceCur,images{i}(end-45:end));
                 fails{end+1} = images{i};
+            else
+                return
             end
-            sameSpace = false;
         end
     end
     if interactive
