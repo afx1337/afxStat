@@ -28,7 +28,7 @@ function destFolder = afxVLSM(designFile, minOverlap, regressLesion, nPerms, inf
     if FWE, FWE = 'FWE'; else, FWE = 'uncorr'; end
     nowstr = datestr(datetime('now'),'yyyymmdd_HHMMSS');
     destFolder = fullfile('results','VLSM',designName,[inference '-' FWE '-' regressLesion 'Lesion'],nowstr);
-    info = struct('designFile',designFile,'rowLabels',{rowLabels},'colLabels',{colLabels},'design',X,'inference',inference,'correction',FWE,'controlForLesionVolume',regressLesion,'minOverlapPct',minOverlapPct,'minOverlapAbs',minOverlapAbs,'nPerms',nPerms,'threshVox',threshVox,'threshClust',threshClust,'tCrit',tCrit,'kCrit',kCrit,'pValues',pVal,'clusterSizes',k);
+    info = struct('designFile',designFile,'rowLabels',{rowLabels},'colLabels',{colLabels},'design',X,'contrast',contrast,'inference',inference,'correction',FWE,'controlForLesionVolume',regressLesion,'minOverlapPct',minOverlapPct,'minOverlapAbs',minOverlapAbs,'nPerms',nPerms,'threshVox',threshVox,'threshClust',threshClust,'tCrit',tCrit,'kCrit',kCrit,'pValues',pVal,'clusterSizes',k);
     afxGlmWrite(destFolder,1,Y.dim,Y.mat,Y.mask,t,tCrit,kCrit,info);
     afxVolumeWrite(fullfile(destFolder,'sumMap.nii'),lesionOverlay,Y.dim,'uint8',Y.mat,'lesion overlay',false);
 end
