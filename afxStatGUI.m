@@ -75,9 +75,9 @@ function afxStatGUI()
             destFolder = fullfile('results','Perm',designFileN,[inference '-' FWEstr],nowstr);
             addpath('scripts');
             if strcmp(stat,'Perm')
-                afxStatExternal(rowLabels, X, {[1] [-1]}, maskFile, nPerms, inference, FWE, threshVox, threshClust, destFolder,'LNSM')
+                afxStatExternal(rowLabels, [], X, {[1] [-1]}, maskFile, nPerms, inference, FWE, threshVox, threshClust, destFolder,'LNSM')
             else
-                afxStatExternal(rowLabels, X, {[1 -1] [-1 1]}, maskFile, nPerms, inference, FWE, threshVox, threshClust, destFolder,'LNSM')
+                afxStatExternal(rowLabels, [], X, {[1 -1] [-1 1]}, maskFile, nPerms, inference, FWE, threshVox, threshClust, destFolder,'LNSM')
             end
             rmpath('scripts');
             copyfile(fullfile(designFileP,strcat(designFileN,'_exlusion.txt')),fullfile(destFolder,'excluded_patients.txt'));
