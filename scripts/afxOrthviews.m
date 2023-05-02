@@ -71,7 +71,7 @@ function varargout = afxOrthviews(action,varargin)
                 niiUnderlay = varargin{1};
                 customBB = false;
             else
-                niiUnderlay = fullfile('templates','ch2better_1mm.nii');
+                niiUnderlay = fullfile('templates','MNI152_T1_0.5mm_masked.nii');
                 customBB = true;
             end
             spm_figure('GetWin','Graphics');
