@@ -31,6 +31,8 @@ function [Y,X,contrast,lesionOverlay,minOverlapAbs,minOverlapPct] = afxPrepareVL
     
     % adress lesion volume
     switch regressLesion
+        case 'sdsm'
+            ; % do nothing
         case 'none'
             warning('Lesion volume will not be addresed in the current analysis.');
         case 'regress' % niiStat strategy
