@@ -1,6 +1,6 @@
 function afxStatGUI()
     % define toolbox directories
-    afxRsDir = dir(fullfile('..','afxRs-*'));
+    afxRsDir = dir(fullfile('..','afxRs*'));
     [~,idx] = sort({afxRsDir.name});
     afxRsDir = afxRsDir(idx);
     afxRsDir = fullfile(afxRsDir(end).folder,afxRsDir(end).name);
@@ -13,7 +13,7 @@ function afxStatGUI()
     % datestr
     nowstr = datestr(datetime('now'),'yyyymmdd_HHMMSS');
     % prompt for mode
-    stat = spm_input('Modus',1,'m',{'VLSM' 'VLSM (binär)' 'LNM (1stlevel)' 'LNSM (2nd-level)' 'LNSM (2nd-level, binär)'},{'VLSM' 'VLSMbin' 'LNM' 'Perm' 'Permbin' },1);
+    stat = spm_input('Modus',1,'m',{'VLSM' 'VLSM (binär)' 'LNM (1stlevel)' 'LNSM (2nd-level)' 'LNSM (2nd-level, binär)' 'SDSM (binär)'},{'VLSM' 'VLSMbin' 'LNM' 'Perm' 'Permbin' 'SDSMbin'},1);
     stat = stat{1};
     % prompt for design file
     designFile = cellstr(spm_select(1 ,'^.*\.xlsx$','Select design file'));
@@ -58,7 +58,7 @@ function afxStatGUI()
             xlswrite(fullfile(designFileP,strcat(designFileN,'_LNSM_',[cohortN '-' denoisingOptionsN],'.xlsx')),['lesionNetwork' colLabels; filesLNM num2cell(X)]);
             afxSaveCellArray(fullfile(designFileP,strcat(designFileN,'_LNSM_',[cohortN '-' denoisingOptionsN],'_exlusion.txt')),'These patients have been excluded from lesion network mapping because their lesions were entirely located in the white matter in at least on healthy subject:',rowLabels(delIdx))
         case {'Perm' 'Permbin'}
-            [nPerms,inference,FWE,threshVox,threshClust] = afxPermutationSetup(2);
+            [nPerms,inference,FWE,threshVox,threshClust] = afxPermutationSetup(4);
             allMasks = dir('masks');
             allMasks = {allMasks(~[allMasks.isdir]).name 'other'};
             maskFile = spm_input('Select mask',7,'m',allMasks,allMasks,1);
@@ -81,6 +81,18 @@ function afxStatGUI()
             end
             rmpath('scripts');
             copyfile(fullfile(designFileP,strcat(designFileN,'_exlusion.txt')),fullfile(destFolder,'excluded_patients.txt'));
+        case {'SDSMbin'}
+            % get parameters
+            minOverlapPct = spm_input('Minimum overlap (%)',2,'e','-5',1);
+            thr = spm_input('SDSM Threshold',3,'e','.6',1);
+            [nPerms,inference,FWE,threshVox,threshClust] = afxPermutationSetup(4,true);
+            [X, imgDisco, imgLesion] = afxReadDesignSDSM(designFile);
+            [~,designFileN,~] = fileparts(designFile);
+            if FWE, FWEstr = 'FWE'; else FWEstr = 'uncorr'; end
+            destFolder = fullfile('results','SDSM',designFileN,[inference '-' FWEstr],nowstr);
+            addpath('scripts');
+            afxSDSM(imgDisco, imgLesion, minOverlapPct, X, [1 -1], nPerms, inference, FWE, threshVox, threshClust, destFolder, 'SDSM', thr);
+            rmpath('scripts');
     end
 end
 
@@ -91,6 +103,18 @@ function [X,rowLabels,colLabels] = afxReadDesignLNSM(designFname)
   X = cell2mat(raw(2:end,2:end));
   colLabels = raw(1,2:end);
   rowLabels = raw(2:end,1);
+end
+
+function [X, imgDisco, imgLesion] = afxReadDesignSDSM(designFname)
+  if ~exist(designFname,'file'), error(['Could not read file ' designFname]); end
+  [~,~,raw] = xlsread(designFname);
+  fprintf('Read design file %s with %i rows and %i columns.\n',designFname,size(raw,1),size(raw,2));
+  X = cell2mat(raw(2:end,4:end));
+  dirDisco = raw(2:end,1);
+  dirLesion = raw(2:end,2);
+  fnames = raw(2:end,3);
+  imgDisco = strcat(dirDisco,fnames);
+  imgLesion = strcat(dirLesion,fnames);
 end
 
 function rois = createROIs(fnames,gmMask)
@@ -104,18 +128,21 @@ function rois = createROIs(fnames,gmMask)
     end
 end
 
-function [nPerms,inference,FWE,threshVox,threshClust] = afxPermutationSetup(start)
+function [nPerms,inference,FWE,threshVox,threshClust] = afxPermutationSetup(start,fl)
     nPerms = spm_input('Permutations',start,'e','5000',1);
-    fl =  spm_input('Freedman-Lane',start+1,'b',{'no' 'yes'},[false true],1);
+    if ~exist('fl','var')
+        fl =  spm_input('Freedman-Lane',start+1,'b',{'no' 'yes'},[false true],1);
+        start = start + 1;
+    end
     if fl, nPerms = -nPerms; end
-    inference = spm_input('Inference',start+2,'b',{'voxel' 'cluster'},[true false],1);
+    inference = spm_input('Inference',start+1,'b',{'voxel' 'cluster'},[true false],1);
     if inference, inference = 'voxel'; else, inference = 'cluster'; end
-    FWE = spm_input('correction',start+3,'b',{'FWE' 'uncorr'},[true false],1);
+    FWE = spm_input('correction',start+2,'b',{'FWE' 'uncorr'},[true false],1);
     if strcmp(inference,'cluster')
-        threshVox = spm_input('p(vox)',start+4,'e','0.001',1);
-        threshClust = spm_input('p(clust)',start+5,'e','0.05',1);
+        threshVox = spm_input('p(vox)',start+3,'e','0.001',1);
+        threshClust = spm_input('p(clust)',start+4,'e','0.05',1);
     else
-        threshVox = spm_input('p(vox)',start+4,'e','0.05',1);
+        threshVox = spm_input('p(vox)',start+3,'e','0.05',1);
         threshClust = [];
     end
 end
