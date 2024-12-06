@@ -50,7 +50,7 @@ function afxStatGUI()
             X = X(~delIdx,:);
             firstlevelDir = afxFirstlevel(s.subjects,denoisingOptions,rois,projectName,{'fc_wholebrain'});
             firstlevelInfo = fullfile(firstlevelDir,'firstlevel_info.mat');
-            [filesLNM] = afxLnmSecondlevel(firstlevelInfo,[]);
+            [filesLNM] = afxLnmSecondlevel(firstlevelInfo,[],true);
             filesLNM = fullfile(pwd,filesLNM);
             rmpath('scripts');
             % save LNSM design file
