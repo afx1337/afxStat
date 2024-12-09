@@ -5,7 +5,7 @@ function [destFolder, tCrit, kCrit] = afxVLSMExternal(imgData, minOverlap, X, co
 
     % load images
     if ~isstruct(imgData)
-        [Y.dat,~,Y.dim,Y.mat] = afxLoadFunc(imgData);
+        [Y.dat,~,Y.dim,Y.mat] = afxVolumeRead(imgData);
         rowLabels = imgData;
     else
         Y = imgData;

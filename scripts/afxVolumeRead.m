@@ -1,7 +1,8 @@
-function [y,XYZmm,dim,mat] = afxLoadFunc(func)
+function [y,XYZmm,dim,mat] = afxVolumeRead(func)
     fprintf('Loading imaging data ')
-    % read functional data and convert to one dimensional vector
+    % read imaging data and convert to one dimensional vector
     
+    % check cache
     if ismember('afxCache',evalin('base','who'))
         afxCache = evalin('base','afxCache');
         if strcmp(jsonencode(func),jsonencode(afxCache.func))
@@ -14,13 +15,6 @@ function [y,XYZmm,dim,mat] = afxLoadFunc(func)
         end
     end
 
-    
-    % old (~ 12 seconds for a NKI data set)
-    %parfor  i = 1:size(func,1)
-    %    tmp = spm_read_vols(spm_vol(func(i,:)));
-    %    y(i,:) = tmp(:);
-    %end
-    
     % new (~4 seconds for a NKI data set)
     for  i = 1:length(func)
         fprintf('.');
@@ -35,7 +29,7 @@ function [y,XYZmm,dim,mat] = afxLoadFunc(func)
         end
     end
     
-    % load first functional image for MNI coordinates in mm and for
+    % load first image for MNI coordinates in mm and for
     % dimensions etc.
     Vfunc = spm_vol(func{1});
     [~,XYZmm] = spm_read_vols(spm_vol(Vfunc));
@@ -43,6 +37,7 @@ function [y,XYZmm,dim,mat] = afxLoadFunc(func)
     dim = Vfunc.dim;
     mat = Vfunc.mat;
     
+    % save data to cache
     afxCache = struct([]);
     afxCache(1).y = y;
     afxCache.XYZmm = XYZmm;

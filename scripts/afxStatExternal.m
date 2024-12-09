@@ -1,6 +1,6 @@
 function [destFolder,tCrit, kCrit] = afxStatExternal(imgFiles, FWHM, X, contrasts, maskFile, nPerms, inference, FWE, threshVox, threshClust, destFolder, comment, flipLR)
     % load images
-    [Y.dat,XYZ,Y.dim,Y.mat] = afxLoadFunc(imgFiles);
+    [Y.dat,XYZ,Y.dim,Y.mat] = afxVolumeRead(imgFiles);
     
     % flipLR
     if exist('flipLR','var')

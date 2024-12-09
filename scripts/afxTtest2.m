@@ -19,7 +19,7 @@ function afxTtest2()
     if FWE, FWEstr = 'FWE'; else, FWEstr = 'uncorr'; end
     destFolder = fullfile('results','ttest2',title,[inference '-' FWEstr ]);
     % load data
-    [Y.dat,XYZ,Y.dim,Y.mat] = afxLoadFunc([images1 ; images2]);
+    [Y.dat,XYZ,Y.dim,Y.mat] = afxVolumeRead([images1 ; images2]);
     % load mask
     Y.mask = afxVolumeResample(maskFile,XYZ,0)' > .5;
     Y.dat = Y.dat(:,Y.mask);

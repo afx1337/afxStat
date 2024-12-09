@@ -5,7 +5,7 @@ function [destFolder, tCrit, kCrit] = afxSDSM(imgDisco, imgLesion, minOverlap, X
 
     % load disconnection images
     if ~isstruct(imgDisco)
-        [Y.dat,~,Y.dim,Y.mat] = afxLoadFunc(imgDisco);
+        [Y.dat,~,Y.dim,Y.mat] = afxVolumeRead(imgDisco);
         rowLabels = imgDisco;
     else
         Y = imgDisco;
@@ -13,7 +13,7 @@ function [destFolder, tCrit, kCrit] = afxSDSM(imgDisco, imgLesion, minOverlap, X
     end
     
     % add regressor for lesion size
-    [lesions.dat,~,~,lesions.mat] = afxLoadFunc(imgLesion);
+    [lesions.dat,~,~,lesions.mat] = afxVolumeRead(imgLesion);
     lesionSizes = sum(lesions.dat,2)*prod(sqrt(sum(lesions.mat(1:3,1:3).^2)))/1000;
     X = [ X lesionSizes./max(lesionSizes)];
     

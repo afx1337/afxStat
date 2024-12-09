@@ -21,6 +21,6 @@ function [Y,X,rowLabels,colLabels,XYZ] = afxReadDesign(designFname)
           end
       end
   end
-  [Y.dat,XYZ,Y.dim,Y.mat] = afxLoadFunc(imgFiles);
+  [Y.dat,XYZ,Y.dim,Y.mat] = afxVolumeRead(imgFiles);
   rowLabels = imgFiles;
 end

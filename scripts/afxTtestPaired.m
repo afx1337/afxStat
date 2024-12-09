@@ -19,8 +19,8 @@ function afxTtestPaired()
     if FWE, FWEstr = 'FWE'; else, FWEstr = 'uncorr'; end
     destFolder = fullfile('results','ttest_paired',title,[inference '-' FWEstr ]);
     % load data
-    [dat1,XYZ,Y.dim,Y.mat] = afxLoadFunc(images1);
-    [dat2,~,~,~] = afxLoadFunc(images2);
+    [dat1,XYZ,Y.dim,Y.mat] = afxVolumeRead(images1);
+    [dat2,~,~,~] = afxVolumeRead(images2);
     Y.dat = dat1-dat2;
     % load mask
     Y.mask = afxVolumeResample(maskFile,XYZ,0)' > .5;
