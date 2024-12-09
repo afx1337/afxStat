@@ -6,16 +6,18 @@ function y = afxSmoooth(y,FWHM,dim,mat)
 
     fprintf('   Smoothing ...')
     if length(FWHM) == 1, FWHM = [FWHM FWHM FWHM]; end
-    % adapt fwhm to voxel size
-    FWHM = FWHM./sqrt(sum(mat(1:3,1:3).^2));
-    % generate dummy matrix for smoothed data
-    sdat = nan(dim);
-    % iterate over all timepoints
-    for i = 1:size(y,1)
-        % perform smoothing
-        spm_smooth(reshape(y(i,:),dim),sdat,FWHM);
-        % copy data back to y
-        y(i,:) = sdat(:);
+    if FWHM ~= [0 0 0]
+        % adapt fwhm to voxel size
+        FWHM = FWHM./sqrt(sum(mat(1:3,1:3).^2));
+        % generate dummy matrix for smoothed data
+        sdat = nan(dim);
+        % iterate over all timepoints
+        for i = 1:size(y,1)
+            % perform smoothing
+            spm_smooth(reshape(y(i,:),dim),sdat,FWHM);
+            % copy data back to y
+            y(i,:) = sdat(:);
+        end
     end
     fprintf(' done\n')
 end

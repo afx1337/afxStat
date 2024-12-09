@@ -15,7 +15,7 @@ function fname = afxVolumeWrite(fname,y,dim,dt,mat,descrip,slopeScaling)
     Vo(1).fname = fname;
     Vo(1).dim = dim;
     Vo(1).mat = mat;
-    Vo(1).dt = [spm_type(dt) spm_platform('bigend')]; % uint8, int16*, int32, float32, float64, int8, uint16, uint32
+    Vo(1).dt = [spm_type(dt) spm_platform('bigend')];
     %Vo(1).n = Vfunc.n;
     Vo(1).descrip = descrip;
     spm_write_vol(Vo,reshape(y,dim));
