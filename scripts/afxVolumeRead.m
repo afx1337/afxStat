@@ -1,11 +1,35 @@
-function [y,XYZmm,dim,mat] = afxVolumeRead(func)
-    fprintf('Loading imaging data ')
-    % read imaging data and convert to one dimensional vector
-    
-    % check cache
-    if ismember('afxCache',evalin('base','who'))
-        afxCache = evalin('base','afxCache');
-        if strcmp(jsonencode(func),jsonencode(afxCache.func))
+function [y,XYZmm,dim,mat] = afxVolumeRead(func, varargin)
+    % Load NIfTI images with optional caching and dynamic cutoff
+    %
+    % Optional parameters:
+    %   'precision' : 'single' (default) or 'logical'
+    %   'cacheCutoffGB' : maximum RAM for cache (default: 1 GB)
+
+    p = inputParser;
+    addParameter(p,'precision','single',@(x) ismember(x,{'single','logical'}));
+    addParameter(p,'cacheCutoffGB',1,@(x) isnumeric(x) && x>0);
+    parse(p,varargin{:});
+
+    precision = p.Results.precision;
+    cacheCutoffGB = p.Results.cacheCutoffGB;
+
+    fprintf('Loading imaging data ');
+
+    %% --- Estimate memory requirement ---
+    tmp = nifti(func{1});
+    nVolumes = size(tmp.dat,4);
+    nVox = prod(size(tmp.dat,1:3));
+
+    x = zeros(1,1,precision);
+    bytesPerVoxel = whos('x').bytes;
+
+    estRAMBytes = nVox * max(nVolumes, numel(func)) * bytesPerVoxel;
+    useCache = estRAMBytes <= cacheCutoffGB*1e9;
+
+    %% --- Check cache if allowed ---
+    if useCache && evalin('base','exist(''__AFX_CACHE__'',''var'')')
+        afxCache = evalin('base','__AFX_CACHE__');
+        if isstruct(afxCache) && isfield(afxCache,'func') && isequal(func,afxCache.func)
             fprintf('... using cached data ... done.\n');
             y = afxCache.y;
             XYZmm = afxCache.XYZmm;
@@ -15,36 +39,56 @@ function [y,XYZmm,dim,mat] = afxVolumeRead(func)
         end
     end
 
-    % new (~4 seconds for a NKI data set)
-    for  i = 1:length(func)
+    %% --- Preallocate y ---
+    if nVolumes > 1
+        assert(numel(func)==1,'4D data only supported for single file');
+        y = zeros(nVolumes,nVox,precision);
+    else
+        y = zeros(numel(func),nVox,precision);
+    end
+
+    %% --- Load in batches ---
+    nFiles = numel(func);
+    for i = 1:nFiles
         fprintf('.');
-        tmp = nifti(func{i});
-        if size(tmp.dat,4) > 1
-            parfor j = 1:size(tmp.dat,4)
-                y(j,:) = reshape(tmp.dat(:,:,:,j),1,[]);
+        if i > 1, tmp = nifti(func{i}); end
+
+        if nVolumes > 1
+            parfor j = 1:nVolumes
+                if strcmp(precision,'logical')
+                    y(j,:) = tmp.dat(:,:)~=0;
+                else
+                    y(j,:) = single(tmp.dat(:));
+                end
             end
             break
         else
-            y(i,:) = tmp.dat(:);
+            if strcmp(precision,'logical')
+                y(i,:) = tmp.dat(:,:)~=0;
+            else
+                y(i,:) = single(tmp.dat(:));
+            end
         end
     end
-    
-    % load first image for MNI coordinates in mm and for
-    % dimensions etc.
+
+
+    %% --- Load coordinates and affine ---
     Vfunc = spm_vol(func{1});
-    [~,XYZmm] = spm_read_vols(spm_vol(Vfunc));
+    [~,XYZmm] = spm_read_vols(Vfunc);
     XYZmm = [XYZmm; ones(1,size(XYZmm,2))];
     dim = Vfunc.dim;
     mat = Vfunc.mat;
-    
-    % save data to cache
-    afxCache = struct([]);
-    afxCache(1).y = y;
-    afxCache.XYZmm = XYZmm;
-    afxCache.dim = dim;
-    afxCache.mat = mat;
-    afxCache.func = func;
-    assignin('base','afxCache',afxCache);
-    
+
+    %% --- Save to cache if allowed ---
+    if useCache
+        afxCache = struct( ...
+            'y',y, ...
+            'XYZmm',XYZmm, ...
+            'dim',dim, ...
+            'mat',mat, ...
+            'func',func );
+        assignin('base','__AFX_CACHE__',afxCache);
+    end
+
     fprintf(' done.\n');
 end
