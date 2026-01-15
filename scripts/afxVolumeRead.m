@@ -28,8 +28,8 @@ function [y,XYZmm,dim,mat] = afxVolumeRead(func, varargin)
     useCache = estRAMBytes <= cacheCutoffGB*1e9;
 
     %% --- Check cache if allowed ---
-    if useCache && evalin('base','exist(''__AFX_CACHE__'',''var'')')
-        afxCache = evalin('base','__AFX_CACHE__');
+    if useCache && evalin('base','exist(''AFX_CACHE'',''var'')')
+        afxCache = evalin('base','AFX_CACHE');
         if isstruct(afxCache) && isfield(afxCache,'func') && isequal(func,afxCache.func)
             fprintf('... using cached data ... done.\n');
             y = afxCache.y;
@@ -65,7 +65,7 @@ function [y,XYZmm,dim,mat] = afxVolumeRead(func, varargin)
             break
         else
             if strcmp(precision,'logical')
-                y(i,:) = tmp.dat(:,:)~=0;
+                y(i,:) = tmp.dat(:)~=0;
             else
                 y(i,:) = single(tmp.dat(:));
             end
@@ -88,7 +88,7 @@ function [y,XYZmm,dim,mat] = afxVolumeRead(func, varargin)
             'dim',dim, ...
             'mat',mat, ...
             'func',func );
-        assignin('base','__AFX_CACHE__',afxCache);
+        assignin('base','AFX_CACHE',afxCache);
     end
 
     fprintf(' done.\n');
