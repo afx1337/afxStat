@@ -21,7 +21,8 @@ function [y,XYZmm,dim,mat] = afxVolumeRead(func, varargin)
     nVox = prod(size(tmp.dat,1:3));
 
     x = zeros(1,1,precision);
-    bytesPerVoxel = whos('x').bytes;
+    bytesPerVoxel = whos('x');
+    bytesPerVoxel = bytesPerVoxel.bytes;
 
     estRAMBytes = nVox * max(nVolumes, numel(func)) * bytesPerVoxel;
     useCache = estRAMBytes <= cacheCutoffGB*1e9;
