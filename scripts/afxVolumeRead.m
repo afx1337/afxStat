@@ -57,9 +57,9 @@ function [y,XYZmm,dim,mat] = afxVolumeRead(func, varargin)
         if nVolumes > 1
             parfor j = 1:nVolumes
                 if strcmp(precision,'logical')
-                    y(j,:) = tmp.dat(:)~=0;
+                    y(j,:) = reshape(tmp.dat(:,:,:,j),[1,nVox])~=0;
                 else
-                    y(j,:) = single(tmp.dat(:));
+                    y(j,:) = single(reshape(tmp.dat(:,:,:,j),[1,nVox]));
                 end
             end
             break
