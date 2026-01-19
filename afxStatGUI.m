@@ -149,7 +149,15 @@ end
 
 function [denoisingOptions,cohort,gmMask] = afxLNMSetup(start,afxRsDir)
     % obtain denoising parameters
-    denoisingOptions = spm_input('Denoising strategy?',start,'m',{'WMCSF' 'GSR' 'PCA'},{fullfile('denoisingOptions','smoothed_95_WMCSF.mat') fullfile('denoisingOptions','smoothed_95_GSR.mat') fullfile('denoisingOptions','smoothed_99_PCA.mat')},1);
+    denoisingOptions = spm_input('Denoising strategy?',start,'m', ...
+        {'WMCSF' 'GSR' 'PCA' 'HCP_WMCSF' 'HCP_GSR' 'HCP_PCA'}, { ...
+            fullfile('denoisingOptions','smoothed_95_WMCSF.mat') 
+            fullfile('denoisingOptions','smoothed_95_GSR.mat')
+            fullfile('denoisingOptions','smoothed_99_PCA.mat')
+            fullfile('denoisingOptions','smoothed_HCP_WMCSF.mat')
+            fullfile('denoisingOptions','smoothed_HCP_GSR.mat')
+            fullfile('denoisingOptions','smoothed_HCP_PCA.mat')
+        },1);
     denoisingOptions = denoisingOptions{1};
     % obtain normative sample to use
     d = [dir(fullfile(afxRsDir,'data','HCP','subjects','subjects*.mat'));dir(fullfile(afxRsDir,'data','NKI_sample','subjects','subjects*.mat'))];
