@@ -1,4 +1,6 @@
 function [y,XYZmm,dim,mat] = afxVolumeRead(func, varargin)
+    % function [y,XYZmm,dim,mat] = afxVolumeRead(filenames, varargin)
+    %
     % Load NIfTI images with optional caching and dynamic cutoff
     %
     % Optional parameters:
