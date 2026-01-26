@@ -21,18 +21,23 @@ function afxGlmWrite(destFolder, c, dim, mat, mask, t, tCrit, kCrit, info)
     fileInfoMat = fullfile(destFolder,['info_' cstr '.mat']);
     fileInfoTxt = fullfile(destFolder,['info_' cstr '.txt']);
     
-    afxVolumeWrite(fileMask,mask,dim,'uint8',mat,'mask');
+    afxVolumeWrite(fileMask,mask,dim,'uint8',mat,'mask',false);
     
-    img = zeros(size(mask));
+    nSigVox = nnz(t>tCrit);
+    img = zeros(size(mask),'like',t);
     img(mask) = t;
+    clear t;
     afxVolumeWrite(fileTraw,img,dim,'int16',mat,'untresholded t-statistic');
     
     if kCrit > 0
         [L,numClust] = spm_bwlabel(reshape(double(img > tCrit),dim));
-        k = histc(L(:),1:numClust);
+        %k = histc(L(:),1:numClust);
+        k = accumarray(L(L>0),1,[numClust 1]);
         sigClust = find(k >= kCrit);
         sigVox = ismember(L(:),sigClust);
-        afxVolumeWrite(fileTthresh,sigVox'.*img,dim,'int16',mat,'tresholded t-statistic');
+        clear L k;
+        afxVolumeWrite(fileTthresh,sigVox.*img,dim,'int16',mat,'tresholded t-statistic');
+        clear sigVox;
     else
         sigClust = [];
         afxVolumeWrite(fileTthresh,(img > tCrit).*img,dim,'int16',mat,'tresholded t-statistic');
@@ -42,7 +47,7 @@ function afxGlmWrite(destFolder, c, dim, mat, mask, t, tCrit, kCrit, info)
     if exist(fileInfoTxt,'file'), delete(fileInfoTxt); end
     diary(fileInfoTxt);
     disp(info);
-    fprintf('\nSuprathreshold voxels: %i; suprathreshold clusters: %i\n',nnz(t>tCrit),length(sigClust));
+    fprintf('\nSuprathreshold voxels: %i; suprathreshold clusters: %i\n',nSigVox,length(sigClust));
     
     % print cluster table
     if strcmp(info.inference,'cluster')
