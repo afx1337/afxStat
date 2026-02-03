@@ -1,13 +1,9 @@
 function afxGlmWrite(destFolder, c, dim, mat, mask, t, tCrit, kCrit, info)
     info.df = size(info.design,1)-rank(info.design);
-    info.meta.date = datestr(now);
-    if isfile("VERSION")
-        info.meta.version = strtrim(fileread("VERSION"));
-    else
-        info.meta.version = "unknown";
-    end
-    info.meta.matlab = version();
-    info.meta.toolboxes = ver();
+    info.metaDate = datestr(now);
+    info.metaVersion = afxVersion();
+    info.metaMatlab = version();
+    info.metaToolboxes = ver();
 
     if exist(destFolder,'dir')
         warning(['Output folder ' destFolder ' already exists. Files will be overwritten.']);
@@ -31,7 +27,6 @@ function afxGlmWrite(destFolder, c, dim, mat, mask, t, tCrit, kCrit, info)
     
     if kCrit > 0
         [L,numClust] = spm_bwlabel(reshape(double(img > tCrit),dim));
-        %k = histc(L(:),1:numClust);
         k = accumarray(L(L>0),1,[numClust 1]);
         sigClust = find(k >= kCrit);
         sigVox = ismember(L(:),sigClust);
@@ -57,4 +52,16 @@ function afxGlmWrite(destFolder, c, dim, mat, mask, t, tCrit, kCrit, info)
         end
     end
     diary off;
+end
+
+function version = afxVersion()
+    thisFile = mfilename('fullpath');
+    thisDir = fileparts(thisFile);
+    versionFile = fullfile(thisDir,'..', 'VERSION');
+    if exist(versionFile, 'file')
+        version = strtrim(fileread(versionFile));
+    else
+        version = 'unknown';
+        warning('VERSION file not found.');
+    end
 end
