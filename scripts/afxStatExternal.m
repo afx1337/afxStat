@@ -36,7 +36,7 @@ function [destFolder,tCrit, kCrit] = afxStatExternal(imgFiles, FWHM, X, contrast
         [t, tCrit, kCrit, pVal, k] = afxGlmPerm(Y, X, contrast, nPerms, inference, FWE, threshVox, threshClust);
 
         % save results
-        info = struct('images',{imgFiles},'rowLabels',{rowLabels},'design',X,'contrast',contrast,'comment',comment,'inference',inference,'correction',tmp2,'mask',maskFile,'nPerms',nPerms,'threshVox',threshVox,'threshClust',threshClust,'tCrit',tCrit,'kCrit',kCrit,'pValues',pVal,'clusterSizes',k);
+        info = struct('images',{imgFiles},'rowLabels',{rowLabels},'FWHM',FWHM,'design',X,'contrast',contrast,'comment',comment,'inference',inference,'correction',tmp2,'mask',maskFile,'nPerms',nPerms,'threshVox',threshVox,'threshClust',threshClust,'flipLR',flipLR,'thr',thr,'tCrit',tCrit,'kCrit',kCrit,'pValues',pVal,'clusterSizes',k);
         afxGlmWrite(destFolder,i,Y.dim,Y.mat,Y.mask,t,tCrit,kCrit,info);
     end
 end
