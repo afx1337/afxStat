@@ -13,13 +13,13 @@ function afxStatGUI()
     % datestr
     nowstr = datestr(datetime('now'),'yyyymmdd_HHMMSS');
     % prompt for mode
-    stat = spm_input('Modus',1,'m',{'VLSM' 'VLSM (binär)' 'LNM (1stlevel)' 'LNSM (2nd-level)' 'LNSM (2nd-level, binär)' 'SDSM (binär)'},{'VLSM' 'VLSMbin' 'LNM' 'Perm' 'Permbin' 'SDSMbin'},1);
+    stat = spm_input('Modus',1,'m',{'VLSM' 'LNM (1stlevel)' 'LNSM (2nd-level)' 'LNSM (2nd-level, binär)' 'SDSM (binär)'},{'VLSM' 'LNM' 'Perm' 'Permbin' 'SDSMbin'},1);
     stat = stat{1};
     % prompt for design file
     designFile = cellstr(spm_select(1 ,'^.*\.xlsx$','Select design file'));
     designFile = designFile{1};
     switch stat
-        case {'VLSM' 'VLSMbin'}
+        case {'VLSM'}
             % get parameters
             minOverlapPct = spm_input('Minimum overlap (%)',2,'e','10',1);
             regressLesion = spm_input('Account for lesion volume?',3,'m',{'no' 'regress' 'covariate' 'direct'},{'none' 'regress' 'covariate' 'direct'},2);
@@ -27,11 +27,7 @@ function afxStatGUI()
             [nPerms,inference,FWE,threshVox,threshClust] = afxPermutationSetup(4);
             % perform vlsm
             addpath('scripts');
-            if strcmp(stat,'VLSM')
-                afxVLSM(designFile, minOverlapPct, regressLesion, nPerms, inference, FWE, threshVox, threshClust)
-            else
-                afxVLSMbin(designFile, minOverlapPct, regressLesion, nPerms, inference, FWE, threshVox, threshClust)
-            end
+            afxVlsmXlsx(designFile, minOverlapPct, regressLesion, nPerms, inference, FWE, threshVox, threshClust);
             rmpath('scripts');
         case 'LNM'
             % setup
@@ -69,18 +65,19 @@ function afxStatGUI()
             else
                 maskFile = fullfile('masks',maskFile);
             end
-            [X,rowLabels,~] = afxReadDesignLNSM(designFile);
-            [designFileP,designFileN,~] = fileparts(designFile);
-            if FWE, FWEstr = 'FWE'; else FWEstr = 'uncorr'; end
-            destFolder = fullfile('results','Perm',designFileN,[inference '-' FWEstr],nowstr);
-            addpath('scripts');
             if strcmp(stat,'Perm')
-                afxStatExternal(rowLabels, [], X, {[1] [-1]}, maskFile, nPerms, inference, FWE, threshVox, threshClust, destFolder,'LNSM')
+                contrasts = {[1] [-1]};
             else
-                afxStatExternal(rowLabels, [], X, {[1 -1] [-1 1]}, maskFile, nPerms, inference, FWE, threshVox, threshClust, destFolder,'LNSM')
+                contrasts = {[1 -1] [-1 1]};
             end
+            addpath('scripts');
+            destFolder = afxStatXlsx(designFile, contrasts, maskFile, nPerms, inference, FWE, threshVox, threshClust);
             rmpath('scripts');
-            copyfile(fullfile(designFileP,strcat(designFileN,'_exlusion.txt')),fullfile(destFolder,'excluded_patients.txt'));
+            [designFileP,designFileN,~] = fileparts(designFile);
+            fileExcl = fullfile(designFileP,strcat(designFileN,'_exlusion.txt'));
+            if exists(fileExcl,'file')
+                copyfile(fileExcl,fullfile(destFolder,'excluded_patients.txt'));
+            end
         case {'SDSMbin'}
             % get parameters
             minOverlapPct = spm_input('Minimum overlap (%)',2,'e','-5',1);
@@ -91,7 +88,7 @@ function afxStatGUI()
             if FWE, FWEstr = 'FWE'; else FWEstr = 'uncorr'; end
             destFolder = fullfile('results','SDSM',designFileN,[inference '-' FWEstr],nowstr);
             addpath('scripts');
-            afxSDSM(imgDisco, imgLesion, minOverlapPct, X, [1 -1], nPerms, inference, FWE, threshVox, threshClust, destFolder, 'SDSM', thr);
+            afxSDSMFiles(imgDisco, [], [], thr, imgLesion, X, minOverlapPct, {[1 -1]}, nPerms, inference, FWE, threshVox, threshClust, destFolder)
             rmpath('scripts');
     end
 end

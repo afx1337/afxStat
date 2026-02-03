@@ -1,4 +1,4 @@
-function [Y,X,rowLabels,colLabels,XYZ] = afxReadDesign(designFname)
+function [imgFiles,colLabels,X] = afxReadDesign(designFname)
   if ~exist(designFname,'file'), error(['Could not read file ' designFname]); end
   [pth,~,~] = fileparts(designFname);
   [pth,~,~] = fileparts(pth);
@@ -14,13 +14,11 @@ function [Y,X,rowLabels,colLabels,XYZ] = afxReadDesign(designFname)
       if ~exist(curImg,'file')
           [~,name,ext] = fileparts(curImg);
           tmpName = fullfile(pth,'img',[name ext]);
-          if exist(tmpName)
+          if exist(tmpName,'file')
               imgFiles{i} = tmpName;
           else
               error(['Image ' [name ext] ' does not exist.']);
           end
       end
   end
-  [Y.dat,XYZ,Y.dim,Y.mat] = afxVolumeRead(imgFiles);
-  rowLabels = imgFiles;
 end

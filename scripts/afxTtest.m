@@ -18,21 +18,14 @@ function afxTtest()
     end
     if FWE, FWEstr = 'FWE'; else, FWEstr = 'uncorr'; end
     destFolder = fullfile('results','ttest',title,[inference '-' FWEstr ]);
-    % load data
-    [Y.dat,XYZ,Y.dim,Y.mat] = afxVolumeRead(images);
-    % load mask
-    Y.mask = afxVolumeResample(maskFile,XYZ,0)' > .5;
-    Y.dat = Y.dat(:,Y.mask);
+    
+    % preare
+    imgFiles = images;
     % design
-    X = ones(size(Y.dat,1),1);
+    X = ones(length(images),1);
     % contrast
     contrasts{1} = [1];
-    %contrasts{2} = [-1];
-    for i = 1:length(contrasts)
-        % stat
-        [t, tCrit, kCrit, pVal, k] = afxGlmPerm(Y, X, contrasts{i}, nPerms, inference, FWE, threshVox, threshClust);
-        % save everything
-        info = struct('images',{images},'design',X,'contrast',contrasts{i},'inference',inference,'correction',FWEstr,'mask',maskFile,'nPerms',nPerms,'threshVox',threshVox,'threshClust',threshClust,'tCrit',tCrit,'kCrit',kCrit,'pValues',pVal,'clusterSizes',k);
-        afxGlmWrite(destFolder,i,Y.dim,Y.mat,Y.mask,t,tCrit,kCrit,info);
-    end
+    
+    % pass to afxStatFiles()
+    afxStatFiles(imgFiles, [], [], [], X, contrasts, maskFile, nPerms, inference, FWE, threshVox, threshClust, destFolder);
 end

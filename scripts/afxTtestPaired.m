@@ -18,23 +18,25 @@ function afxTtestPaired()
     end
     if FWE, FWEstr = 'FWE'; else, FWEstr = 'uncorr'; end
     destFolder = fullfile('results','ttest_paired',title,[inference '-' FWEstr ]);
-    % load data
+    
+    % load data and calcluate difference
     [dat1,XYZ,Y.dim,Y.mat] = afxVolumeRead(images1);
     [dat2,~,~,~] = afxVolumeRead(images2);
     Y.dat = dat1-dat2;
+    clear dat1 dat2
+    comment.images1 = images1;
+    comment.images2 = images2;
+    
     % load mask
     Y.mask = afxVolumeResample(maskFile,XYZ,0)' > .5;
     Y.dat = Y.dat(:,Y.mask);
+    comment.maskFile = maskFile;
+    
     % design
     X = ones(size(Y.dat,1),1);
     % contrast
-    contrasts{1} = [1];
-    contrasts{2} = [-1];
-    for i = 1:length(contrasts)    
-        % stat
-        [t, tCrit, kCrit, pVal, k] = afxGlmPerm(Y, X, contrasts{i}, nPerms, inference, FWE, threshVox, threshClust);
-        % save everything
-        info = struct('images1',{images1},'images2',{images2},'design',X,'contrast',contrasts{i},'inference',inference,'correction',FWEstr,'mask',maskFile,'nPerms',nPerms,'threshVox',threshVox,'threshClust',threshClust,'tCrit',tCrit,'kCrit',kCrit,'pValues',pVal,'clusterSizes',k);
-        afxGlmWrite(destFolder,i,Y.dim,Y.mat,Y.mask,t,tCrit,kCrit,info);
-    end
+    contrasts = { [1] [-1] };
+
+    % pass to afxStat()
+    afxStat(Y, X, contrasts, nPerms, inference, FWE, threshVox, threshClust, destFolder, comment);
 end
