@@ -1,18 +1,16 @@
 function [t, tCrit, kCrit, pVal, k] = afxGlmPerm(Y, X, contrast, nPerms, inference, FWE, threshVox, threshClust)
     % [t, tCrit, kCrit] = afxGlmPerm(Y, X, contrast, nPerms, inference, threshVox, threshClust)
     % returns uncorrected t-score for all voxels/rois in Y given design matrix in X
-    %   if either X or Y is binary, results are pooled variance t-test
-    %   (=two-sample), else correlation coefficients
     %
     % Y.dat:       Volume/roi data
     % Y.dim:       Necessary for cluster level inference
     % Y.mask:      Inform cluster level inference about mask; note, that Y.dat needs to be already masked
-    % X:           Design matrix (without constant term) (matrix)
+    % X:           Design matrix
     % contrast:    Contrast vecror
-    % nPerms:      Number of permutations to compute (integer)
+    % nPerms:      Number of permutations to compute, negative values for Freedman-Lane procedure
     % inference:   Inference based on voxel value or cluster size ('voxel'/'cluster')
     % FWE:         Multiple comparisons correction? (true/false)
-    % threshVox:   Critical p
+    % threshVox:   Critical p on the voxel level (if negativ value tCrit = abs(val))
     % threshClust: Critical p for cluster level inference
     %
     % inspired by niiStat by Chris Rorden
@@ -40,7 +38,7 @@ function [t, tCrit, kCrit, pVal, k] = afxGlmPerm(Y, X, contrast, nPerms, inferen
    
     % Freedman-Lane procedure (see Winkler et al., 2014)    
     if nPerms < 0
-        fprintf('Performing Freedman-Lane procedure ...\n');
+        fprintf('Will perform Freedman-Lane procedure.\n');
         % niiStat strategy
         c0 = eye(p) - contrast' * pinv(contrast');
         X0 = X * c0;
@@ -60,7 +58,6 @@ function [t, tCrit, kCrit, pVal, k] = afxGlmPerm(Y, X, contrast, nPerms, inferen
         if threshVox > 1
             tCrit = threshVox;
         else
-            % TODO: chage tinv some spm_builtin
             if isBinomial
                 tCrit = sqrt(2) * erfcinv(threshVox*2);
             else
@@ -95,7 +92,7 @@ function [t, tCrit, kCrit, pVal, k] = afxGlmPerm(Y, X, contrast, nPerms, inferen
         % initialize distribution of largest cluster/voxel value
         nullDist = nan(1,abs(nPerms));
     else
-        nullDist = [];
+        error('Permutations without FWE correction are not supported.')
     end
     
     signPerm = false;
@@ -103,9 +100,15 @@ function [t, tCrit, kCrit, pVal, k] = afxGlmPerm(Y, X, contrast, nPerms, inferen
         c0 = eye(p) - contrast' * pinv(contrast');
         v0 = sum(var(X - X * c0));
         if v0 == 0
-            fprintf('Perform sign permutation ...\n');
+            fprintf('Will perform sign permutations.\n');
             signPerm = true;
         end
+    end
+    
+    if nnz(var(X) > eps & abs(contrast) < eps) > 0 && nPerms > 0
+        % forces user to think about the design matrix or to give up and
+        % use other software
+        error('Design contains nuissance variables but Freedman-Lane has not been enabled.');
     end
     
     perm5pct = abs(nPerms) * .05;
@@ -114,53 +117,39 @@ function [t, tCrit, kCrit, pVal, k] = afxGlmPerm(Y, X, contrast, nPerms, inferen
     fprintf('Performing permutations ...\n')
     % actual permutations to obtain null distribution
     tic
-    for p = 1:abs(nPerms)
-        if p == perm2pct
+    for iPerm = 1:abs(nPerms)
+        if iPerm == perm2pct
             fprintf('  Estimated time: %.1f minutes\n  |                  |\n  ',round(toc*50/60,1));
         end
-        if mod(p,perm5pct) < 1
+        if mod(iPerm,perm5pct) < 1
             fprintf('*');
         end
         
         % permutation of the design matrix
         if signPerm
-            Xp  = X.*(randi(2,nY,1)*2-3);
+            Xp  = X.*sign(randn(n,1));
         else
             Xp  = X(randperm(n), :);
         end
         
         % permutation distribution "should" include identity permutation
         % (Winkler et. al., 2014)
-        if p == 1
+        if iPerm == 1
             tp = t;
         else
             tp = afxGlmCompute(Y.dat,Xp,contrast,df,isBinomial);
         end
         
-        if FWE
-            if clusterInference
-                idx = tp > tCrit;
-                if any(idx)
-                    clust = spm_clusters(RCP(:,idx));
-                    nullDist(p) = nnz(clust == mode(clust));
-                else
-                    nullDist(p) = 0;
-                end
+        if clusterInference
+            idx = tp > tCrit;
+            if any(idx)
+                clust = spm_clusters(RCP(:,idx));
+                nullDist(iPerm) = nnz(clust == mode(clust));
             else
-                nullDist(p) = max(tp);
+                nullDist(iPerm) = 0;
             end
         else
-            if clusterInference
-                idx = tp > tCrit;
-                if any(idx)
-                    clust = spm_clusters(RCP(:,idx));
-                    nullDist = [nullDist histcounts(clust,unique(clust)) ];
-                else
-                    nullDist(end+1) = 0;
-                end
-            else
-                nullDist = [nullDist tp];
-            end
+            nullDist(iPerm) = max(tp);
         end
     end
     fprintf(' done.\n');
