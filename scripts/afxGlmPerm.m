@@ -108,7 +108,7 @@ function [t, tCrit, kCrit, pVal, k] = afxGlmPerm(Y, X, contrast, nPerms, inferen
         end
     end
     
-    perm5pct = round(abs(nPerms) * .05);
+    perm5pct = abs(nPerms) * .05;
     perm2pct = ceil(abs(nPerms) * .02);
 
     fprintf('Performing permutations ...\n')
@@ -118,7 +118,7 @@ function [t, tCrit, kCrit, pVal, k] = afxGlmPerm(Y, X, contrast, nPerms, inferen
         if p == perm2pct
             fprintf('  Estimated time: %.1f minutes\n  |                  |\n  ',round(toc*50/60,1));
         end
-        if mod(p,perm5pct) == 0
+        if mod(p,perm5pct) < 1
             fprintf('*');
         end
         
