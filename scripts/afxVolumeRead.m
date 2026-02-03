@@ -54,6 +54,8 @@ function [y,XYZmm,dim,mat] = afxVolumeRead(func, varargin)
     nFiles = numel(func);
     for i = 1:nFiles
         fprintf('.');
+        if mod(i,50) < 1 && i < nFiles, fprintf('\n                     '); end
+        
         if i > 1, tmp = nifti(func{i}); end
 
         if nVolumes > 1
