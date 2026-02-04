@@ -5,19 +5,22 @@ function afxGlmWrite(destFolder, c, dim, mat, mask, t, tCrit, kCrit, info)
     info.metaMatlab = version();
     info.metaToolboxes = ver();
 
-    if exist(destFolder,'dir')
-        warning(['Output folder ' destFolder ' already exists. Files will be overwritten.']);
-    else
-        mkdir(destFolder);
-    end
     cstr = sprintf('%03d',c);
     fileMask = fullfile(destFolder,'mask.nii');
     fileTraw = fullfile(destFolder,['TMap_' cstr '.nii']);
     fileTthresh = fullfile(destFolder,['TMap_' cstr '_filtered.nii']);
     fileInfoMat = fullfile(destFolder,['info_' cstr '.mat']);
     fileInfoTxt = fullfile(destFolder,['info_' cstr '.txt']);
+
+    if exist(destFolder,'dir')
+        if c == 1
+            warning(['Output folder ' destFolder ' already exists. Files will be overwritten.']);
+        end
+    else
+        mkdir(destFolder);
+    end
     
-    afxVolumeWrite(fileMask,mask,dim,'uint8',mat,'mask',false);
+    if c == 1, afxVolumeWrite(fileMask,mask,dim,'uint8',mat,'mask',false); end
     
     nSigVox = nnz(t>tCrit);
     img = zeros(size(mask),'like',t);
