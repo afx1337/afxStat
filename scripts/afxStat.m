@@ -1,7 +1,8 @@
 function destFolder = afxStat(Y, X, contrasts, nPerms, inference, FWE, threshVox, threshClust, destFolder, comment)
     % design -> add constant term
-    if ~any(var(X) <= eps & mean(X) ~= 0) % constant term?
-        X = [X ones(size(Y.dat,1),1) ];
+    one = ones(size(Y.dat,1),1);
+    if rank([X one]) > rank(X)
+        X = [X one];
     end
     
     % FWE -> string
