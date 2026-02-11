@@ -8,17 +8,18 @@ function dat = afxVolumeResample(volume,XYZorig,hold)
     if nargin < 3, hold = 0; end
     % load volume
     Vresample = spm_vol(volume);
-    % compute voxel coordinates in voxel space of volume wich correspond to
-    % the space given by XYZ
+    
+    % preallocate
     nImg = numel(Vresample);
+    nVox = size(XYZorig,2);
+    dat  = nan(nImg, nVox, 'single');
+        
     for i = 1:nImg
+        % compute voxel coordinates in voxel space of volume wich correspond to
+        % the space given by XYZ
         RCPresample = Vresample(i).mat\XYZorig;
         % resample volume
         datTmp  = spm_sample_vol(Vresample(i),RCPresample(1,:),RCPresample(2,:),RCPresample(3,:),hold);
-        % preallocate
-        if i == 1
-            dat = nan(nImg,size(RCPresample,2));
-        end
         % pack to vector
         dat(i,:) = datTmp(:);
     end
