@@ -1,4 +1,7 @@
 function [Y,X,lesionOverlay,comment] = afxVlsmPrepare(Y,minOverlap,X,regressLesion,comment)
+    % binarize data
+    Y.dat = Y.dat ~= 0;
+
     % calculate lesion volumes and overlay
     lesionVolumes = sum(Y.dat,2);
     lesionOverlay = sum(Y.dat,1);

@@ -5,7 +5,7 @@ function [Y, comment] = afxStatPrepare(imgFiles, flipLR, FWHM, thr, maskFile, co
     
     % load mask
     if ~isempty(maskFile)
-        Y.mask = afxVolumeResample(maskFile,XYZ,0)' > .5;
+        Y.mask = afxVolumeResample(maskFile,XYZ,0)' ~= 0;
         clear XYZ;
         Y.dat = Y.dat(:,Y.mask);
         comment.maskFile = maskFile;

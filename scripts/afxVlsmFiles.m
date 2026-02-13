@@ -2,7 +2,7 @@ function destFolder = afxVlsmFiles(imgFiles, flipLR, FWHM, X, minOverlap, regres
     if ~exist('comment','var'), comment = struct([]); end
 
     % pass to afxStatPrepare()
-    [Y, comment] = afxStatPrepare(imgFiles, flipLR, FWHM, 0.5, [], comment);
+    [Y, comment] = afxStatPrepare(imgFiles, flipLR, FWHM, [], [], comment);
 
     % pass to afxVlsmPrepare()
     [Y,X,lesionOverlay,comment] = afxVlsmPrepare(Y,minOverlap,X,regressLesion,comment);
