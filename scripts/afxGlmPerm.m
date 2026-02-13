@@ -1,6 +1,7 @@
 function [t, tCrit, kCrit, pVal, k] = afxGlmPerm(Y, X, contrast, nPerms, inference, FWE, threshVox, threshClust)
     % [t, tCrit, kCrit] = afxGlmPerm(Y, X, contrast, nPerms, inference, threshVox, threshClust)
-    % returns uncorrected t-score for all voxels/rois in Y given design matrix in X
+    % returns uncorrected t-scores for all voxels/rois in Y given design matrix in X as well as
+    % significance thresholds tCrit and kCrit
     %
     % Y.dat:       Volume/roi data
     % Y.dim:       Necessary for cluster level inference
