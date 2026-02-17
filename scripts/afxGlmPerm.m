@@ -112,19 +112,15 @@ function [t, tCrit, kCrit, pVal, k] = afxGlmPerm(Y, X, contrast, nPerms, inferen
         error('Design contains nuissance variables but Freedman-Lane has not been enabled.');
     end
     
-    perm5pct = abs(nPerms) * .05;
-    perm2pct = ceil(abs(nPerms) * .02);
-
     fprintf('Performing permutations ...\n')
+    perm1pct = abs(nPerms) * .01;
     lastLen = printProgress(20, 0, 0, 0);
+
     % actual permutations to obtain null distribution
     tic
     for iPerm = 1:abs(nPerms)
-        if iPerm == perm2pct
-            lastLen = printProgress(20, 2, toc/60, lastLen);
-        end
-        if mod(iPerm,perm5pct) < 1
-            lastLen = printProgress(20, round(iPerm/perm5pct)*5, toc/60, lastLen);
+        if mod(iPerm,perm1pct) < 1
+            lastLen = printProgress(20, round(iPerm/perm1pct), toc/60, lastLen);
         end
         
         % permutation of the design matrix
