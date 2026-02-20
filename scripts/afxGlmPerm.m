@@ -152,29 +152,18 @@ function [t, tCrit, kCrit, pVal, k] = afxGlmPerm(Y, X, contrast, nPerms, inferen
     end
      
     if clusterInference
-        kCrit = afxPermThreshHigh(nullDist,threshClust);
+        idx = t > tCrit;
+        k = [];
+        if any(idx)
+            clust = spm_clusters(RCP(:,idx));
+            numClust = max(clust);
+            k = histc(clust,1:numClust);
+        end
+        [kCrit, pVal] = afxPermThreshHigh(nullDist,threshClust,k);
+        kCrit = ceil(kCrit);
     else
         kCrit = 0;
-        tCrit = afxPermThreshHigh(nullDist,threshVox);
-    end
-    
-    if nargout > 3
-        pVal = [];
-        if clusterInference
-            idx = t > tCrit;
-            if any(idx)
-                clust = spm_clusters(RCP(:,idx));
-                numClust = max(clust);
-                k = histc(clust,1:numClust);
-                for i = 1:length(k)
-                    pVal(i) = nnz(k(i) <= nullDist)/abs(nPerms);
-                end
-            end
-        else
-            for i = 1:length(t)
-                pVal(i) = nnz(t(i) <= nullDist)/abs(nPerms);
-            end
-        end
+        [tCrit, pVal] = afxPermThreshHigh(nullDist,threshVox,t);
     end
 end
 
