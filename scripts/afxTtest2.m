@@ -22,10 +22,10 @@ function afxTtest2()
     % preare
     imgFiles = [images1 ; images2];
     % design
-    X = [[ones(length(images1),1) zeros(length(images1),1); zeros(length(images2),1) ones(length(images2),1)] ones(length(imgFiles),1)];
+    X = [[ones(length(images1),1) zeros(length(images1),1); zeros(length(images2),1) ones(length(images2),1)] ];
     % contrast (Group1 > Group2 and Group2 > Group1)
-    contrasts{1} = [1 -1 0];
-    contrasts{2} = [-1 1 0];
+    contrasts{1} = [1 -1];
+    contrasts{2} = [-1 1];
     
     % pass to afxStatFiles()
     afxStatFiles(imgFiles, [], [], [], X, contrasts, maskFile, nPerms, inference, FWE, threshVox, threshClust, destFolder);
