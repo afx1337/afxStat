@@ -32,7 +32,7 @@ function [y,XYZmm,dim,mat] = afxVolumeRead(func, varargin)
     %% --- Check cache if allowed ---
     if useCache && evalin('base','exist(''AFX_CACHE'',''var'')')
         afxCache = evalin('base','AFX_CACHE');
-        if isstruct(afxCache) && isfield(afxCache,'func') && isequal(func,{afxCache.func}')
+        if isstruct(afxCache) && isfield(afxCache,'func') && isequal(func,afxCache.func)
             fprintf('... using cached data ... done.\n');
             y = afxCache.y;
             XYZmm = afxCache.XYZmm;
@@ -91,7 +91,7 @@ function [y,XYZmm,dim,mat] = afxVolumeRead(func, varargin)
             'XYZmm',XYZmm, ...
             'dim',dim, ...
             'mat',mat, ...
-            'func',func );
+            'func',{func} );
         assignin('base','AFX_CACHE',afxCache);
     end
 
