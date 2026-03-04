@@ -72,7 +72,7 @@ function alpha = afxGlmLesionContributionMaps(imgFiles, imgOptions, X, contrast,
     [L, ~] = afxStatPrepare(lesFiles, lesOptions.flipLR, lesOptions.FWHM, lesOptions.thr, [], struct([]));
     L.dat = L.dat ~= 0;
     
-    % make output folder if non-existant
+    % make output folder if non-existent
     if ~exist(destFolder','dir'), mkdir(destFolder); end
    
     % save general data
