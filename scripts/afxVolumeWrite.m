@@ -6,7 +6,7 @@ function fname = afxVolumeWrite(fname,y,dim,dt,mat,descrip,slopeScaling)
     if ~exist('slopeScaling','var'), slopeScaling = true; end
     if ~exist('descrip','var'), descrip = 'afxVolumeWrite'; end
     Vo = spm_vol();
-    if slopeScaling
+    if slopeScaling && any(y(:) ~= y(1))
         Vo = rmfield(Vo,'pinfo'); % enables automatic slope scaling
     else
         Vo(1).pinfo(1,1) = 1; % slope
