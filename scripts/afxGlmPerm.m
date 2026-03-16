@@ -82,7 +82,11 @@ function [t, tCrit, kCrit, pVal, k] = afxGlmPerm(Y, X, contrast, nPerms, inferen
                 tCrit = tinv(1-threshVox/v,df);
                 warning('No permutations performed. Critical voxel threshold is Bonferroni corrected.');
             else
-                tCrit = tinv(1-threshVox,df);
+                if threshVox > 1
+                    tCrit = threshVox;
+                else
+                    tCrit = tinv(1-threshVox,df);
+                end
                 warning('No permutations performed. Critical voxel threshold is uncorrected.');
             end
             return
