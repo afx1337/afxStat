@@ -199,5 +199,5 @@ end
 function str = sec2mmss(sec)
     mm = floor(sec / 60);
     ss = mod(sec, 60);
-    str = sprintf('%d:%02d', mm, round(ss));
+    str = sprintf('%d:%02d', mm, floor(ss));
 end
