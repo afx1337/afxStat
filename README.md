@@ -216,7 +216,7 @@ Additional GUI documentation can be found in the `/doc` folder.
 If you use this toolbox in scientific work, please cite the repository:
 
 ```text
-afxStat. Available at: https://github.com/yourusername/afxStat
+afxStat. Available at: https://github.com/afx1337/afxStat
 ```
 
 Please also cite the methodological references listed above where appropriate.
