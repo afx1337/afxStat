@@ -50,7 +50,7 @@ Clone the repository and add the `scripts` folder to your MATLAB path:
 addpath('scripts')
 ```
 
-Make sure SPM12 is available on your MATLAB path before running analyses.
+Make sure SPM12 (https://www.fil.ion.ucl.ac.uk/spm/software/spm12/) is available on your MATLAB path before running analyses.
 
 ---
 
@@ -117,7 +117,7 @@ destFolder = afxStatFiles( ...
 
 ---
 
-## Output Files
+### Output Files
 
 Each analysis generates output in the specified destination folder (or in `results/` by default).
 
@@ -126,7 +126,7 @@ Each analysis generates output in the specified destination folder (or in `resul
 | `TMap_XXX.nii`          | Raw statistical map (t-values)                             |
 | `TMap_XXX_filtered.nii` | Thresholded significant result after permutation inference |
 | `mask.nii`              | Analysis mask used                                         |
-| `sumMap.nii`            | Input overlap / summary map                                |
+| `sumMap.nii`            | Input overlap / summary map (VLSM only)                    |
 | `info_XXX.mat`          | MATLAB metadata / analysis information                     |
 | `info_XXX.txt`          | Human-readable analysis summary                            |
 | `info_XXX.json`         | Machine-readable analysis summary                          |
@@ -134,14 +134,6 @@ Each analysis generates output in the specified destination folder (or in `resul
 ---
 
 ## Other Main Interfaces
-
-### `afxStat`
-
-Low-level interface operating directly on matrix data (`Y`, `X`) rather than image files.
-
-Useful when preprocessing / masking has already been performed externally.
-
----
 
 ### `afxStatXlsx`
 
@@ -162,6 +154,27 @@ Includes lesion-analysis specific preprocessing such as overlap thresholding and
 ### `afxSDSMFiles`
 
 Wrapper for structural disconnection-symptom mapping workflows.
+
+---
+
+### `afxStat`
+
+Low-level interface operating directly on matrix data (`Y`, `X`) rather than image files.
+
+Useful when preprocessing / masking has already been performed externally.
+
+---
+
+## Reference
+
+```matlab
+afxStatFiles(imgFiles, flipLR, FWHM, thr, X, contrasts, maskFile, nPerms, inference, FWE, threshVox, threshClust, destFolder, comment)
+afxStatXlsx(designFile, contrasts, maskFile, nPerms, inference, FWE, threshVox, threshClust)
+afxVlsmFiles(imgFiles, flipLR, FWHM, X, minOverlap, regressLesion, nPerms, inference, FWE, threshVox, threshClust, destFolder, comment)
+afxVlsmXlsx(designFile, minOverlap, regressLesion, nPerms, inference, FWE, threshVox, threshClust)
+afxSDSMFiles(imgNetwork, flipLR, FWHM, thr, imgLesion, X, minOverlap, contrasts, nPerms, inference, FWE, threshVox, threshClust, destFolder, comment)
+afxStat(Y, X, contrasts, nPerms, inference, FWE, threshVox, threshClust, destFolder, comment)
+```
 
 ---
 
@@ -207,7 +220,7 @@ afxStatGUI
 
 The GUI provides interactive access to common workflows but exposes only a subset of the toolbox’s flexibility.
 
-Additional GUI documentation can be found in the `/doc` folder.
+Additional GUI documentation can be found in the `/doc` folder (in German).
 
 ---
 
